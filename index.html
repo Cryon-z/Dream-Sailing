@@ -1,0 +1,2063 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PLAYER_MATRIX // open-api</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --fg: #e0e0e0;
+    --card: #12121a;
+    --muted: #1c1c2e;
+    --muted-fg: #6b7280;
+    --accent: #00ff88;
+    --accent-sec: #ff00ff;
+    --accent-tert: #00d4ff;
+    --border: #2a2a3a;
+    --input-bg: #12121a;
+    --destructive: #ff3366;
+    --neon: 0 0 5px #00ff88, 0 0 10px rgba(0,255,136,0.25);
+    --neon-sm: 0 0 3px #00ff88, 0 0 6px rgba(0,255,136,0.19);
+    --neon-lg: 0 0 10px #00ff88, 0 0 20px rgba(0,255,136,0.38), 0 0 40px rgba(0,255,136,0.19);
+    --neon-sec: 0 0 5px #ff00ff, 0 0 20px rgba(255,0,255,0.38);
+    --neon-tert: 0 0 5px #00d4ff, 0 0 20px rgba(0,212,255,0.38);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: "JetBrains Mono", "Consolas", monospace;
+    font-weight: 400;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+    position: relative;
+  }
+  body::before {
+    content: "";
+    position: fixed; inset: 0; z-index: 0;
+    background-image:
+      linear-gradient(rgba(0, 255, 136, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 255, 136, 0.03) 1px, transparent 1px);
+    background-size: 50px 50px;
+    pointer-events: none;
+  }
+  body::after {
+    content: "";
+    position: fixed; inset: 0; z-index: 60;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      0deg, transparent, transparent 2px,
+      rgba(0, 0, 0, 0.3) 2px, rgba(0, 0, 0, 0.3) 4px
+    );
+    opacity: 0.5;
+  }
+  .scanbar {
+    position: fixed; top: 0; left: 0; right: 0;
+    height: 100px; z-index: 61; pointer-events: none;
+    background: linear-gradient(180deg, transparent, rgba(0,255,136,0.04), transparent);
+    animation: scanmove 8s linear infinite;
+  }
+  @keyframes scanmove {
+    0% { transform: translateY(-100px); }
+    100% { transform: translateY(100vh); }
+  }
+  ::selection { background: var(--accent); color: var(--bg); }
+  a { color: inherit; text-decoration: none; }
+  h1, h2, h3 { font-family: "Orbitron", monospace; text-transform: uppercase; letter-spacing: 0.02em; }
+  .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; position: relative; z-index: 1; }
+  @media (min-width: 768px) { .container { padding: 0 40px; } }
+
+  .chamfer {
+    clip-path: polygon(0 10px, 10px 0, calc(100% - 10px) 0, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 10px));
+  }
+  .chamfer-sm {
+    clip-path: polygon(0 6px, 6px 0, calc(100% - 6px) 0, 100% 6px, 100% calc(100% - 6px), calc(100% - 6px) 100%, 6px 100%, 0 calc(100% - 6px));
+  }
+  .eyebrow {
+    font-family: "Share Tech Mono", monospace;
+    font-size: 0.75rem; text-transform: uppercase;
+    letter-spacing: 0.25em; color: var(--accent);
+    display: inline-flex; align-items: center; gap: 0.5rem;
+  }
+  .eyebrow::before { content: ">"; color: var(--accent-tert); }
+  .cursor {
+    display: inline-block; width: 0.6em; height: 1.1em;
+    background: var(--accent); margin-left: 0.1em;
+    vertical-align: text-bottom;
+    animation: blink 1s step-end infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  .glitch { position: relative; display: inline-block; }
+  .glitch::before, .glitch::after {
+    content: attr(data-text);
+    position: absolute; top: 0; left: 0; width: 100%; overflow: hidden;
+  }
+  .glitch::before { color: var(--accent-sec); z-index: -1; animation: glitch-1 3s infinite linear alternate-reverse; }
+  .glitch::after { color: var(--accent-tert); z-index: -2; animation: glitch-2 3s infinite linear alternate-reverse; }
+  @keyframes glitch-1 {
+    0%, 100% { transform: translate(0); clip-path: inset(0 0 0 0); }
+    20% { transform: translate(-2px, 1px); clip-path: inset(20% 0 40% 0); }
+    40% { transform: translate(2px, -1px); clip-path: inset(60% 0 10% 0); }
+    60% { transform: translate(-1px, 2px); clip-path: inset(30% 0 50% 0); }
+    80% { transform: translate(1px, -2px); clip-path: inset(10% 0 70% 0); }
+  }
+  @keyframes glitch-2 {
+    0%, 100% { transform: translate(0); clip-path: inset(0 0 0 0); }
+    25% { transform: translate(2px, -1px); clip-path: inset(50% 0 20% 0); }
+    50% { transform: translate(-2px, 1px); clip-path: inset(10% 0 60% 0); }
+    75% { transform: translate(1px, 2px); clip-path: inset(70% 0 5% 0); }
+  }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    gap: 0.5rem;
+    font-family: "Share Tech Mono", monospace;
+    font-weight: 400; font-size: 0.875rem;
+    text-transform: uppercase; letter-spacing: 0.1em;
+    cursor: pointer; background: transparent;
+    border: 2px solid var(--accent); color: var(--accent);
+    padding: 0 1.5rem; height: 48px;
+    transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
+  }
+  .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; box-shadow: var(--neon); }
+  .btn-default:hover { background: var(--accent); color: var(--bg); box-shadow: var(--neon-lg); }
+  .btn-glitch { background: var(--accent); color: var(--bg); border-color: var(--accent); font-weight: 700; }
+  .btn-glitch:hover { filter: brightness(1.1); box-shadow: var(--neon-lg); }
+  .btn-outline { border: 1px solid var(--border); color: var(--fg); }
+  .btn-outline:hover { border-color: var(--accent); color: var(--accent); box-shadow: var(--neon-sm); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+    background: rgba(10, 10, 15, 0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+  .brand {
+    font-family: "Orbitron", monospace; font-weight: 900;
+    font-size: 1.125rem; letter-spacing: 0.1em;
+    color: var(--accent); text-shadow: var(--neon-sm);
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .brand .blink-dot {
+    width: 8px; height: 8px; background: var(--accent);
+    box-shadow: var(--neon);
+    animation: blink 1.5s step-end infinite;
+  }
+  .nav-links { display: none; gap: 1.75rem; align-items: center; }
+  .nav-links a {
+    font-family: "Share Tech Mono", monospace;
+    font-size: 0.8125rem; color: var(--muted-fg);
+    transition: color 150ms; text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  .nav-links a:hover { color: var(--accent); text-shadow: var(--neon-sm); }
+  @media (min-width: 1024px) {
+    .nav-links { display: flex; }
+  }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh; display: flex; align-items: center;
+    padding: 6rem 0 3rem; position: relative;
+  }
+  .hero-grid {
+    display: grid; grid-template-columns: 1fr;
+    gap: 3rem; align-items: center; width: 100%;
+  }
+  @media (min-width: 1024px) { .hero-grid { grid-template-columns: 1.4fr 1fr; gap: 4rem; } }
+  .hero-text .eyebrow { margin-bottom: 1.75rem; }
+  .hero h1 {
+    font-weight: 900;
+    font-size: clamp(2.6rem, 8vw, 5.5rem);
+    line-height: 0.95; letter-spacing: 0.01em;
+    margin-bottom: 1.75rem; color: var(--fg);
+    text-shadow: 0 0 20px rgba(0,255,136,0.3);
+  }
+  .hero h1 .neon {
+    color: var(--accent);
+    text-shadow: 0 0 10px var(--accent), 0 0 20px rgba(0,255,136,0.5);
+  }
+  .hero-sub {
+    font-family: "Share Tech Mono", monospace;
+    font-size: clamp(0.875rem, 1.3vw, 1.0625rem);
+    color: var(--accent-tert);
+    margin-bottom: 1.25rem; max-width: 540px;
+  }
+  .hero-sub .prompt { color: var(--accent); }
+  .hero p.desc {
+    color: var(--muted-fg); font-size: 0.9375rem;
+    line-height: 1.7; max-width: 520px; margin-bottom: 1.5rem;
+  }
+
+  /* Hero 服务器地址复制 */
+  .hero-addr {
+    display: inline-flex; align-items: center; gap: 0.625rem;
+    margin-bottom: 0.5rem;
+    padding: 0.625rem 1rem;
+    background: rgba(0, 255, 136, 0.06);
+    border: 1px solid rgba(0, 255, 136, 0.35);
+    font-family: "Share Tech Mono", monospace;
+    font-size: 0.9375rem;
+    cursor: pointer;
+    transition: all 200ms ease;
+    user-select: none;
+    position: relative;
+  }
+  .hero-addr:hover {
+    background: rgba(0, 255, 136, 0.13);
+    border-color: var(--accent);
+    box-shadow: var(--neon-sm);
+  }
+  .hero-addr:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .hero-addr-label {
+    color: var(--muted-fg);
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+  .hero-addr-value {
+    color: var(--accent);
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-shadow: 0 0 8px rgba(0,255,136,0.4);
+    font-variant-numeric: tabular-nums;
+  }
+  .hero-addr-icon {
+    color: var(--accent);
+    flex-shrink: 0;
+    transition: transform 150ms ease;
+  }
+  .hero-addr:hover .hero-addr-icon { transform: scale(1.1); }
+  .hero-addr.copied { animation: copiedPulse 400ms ease; }
+  @keyframes copiedPulse {
+    0% { background: rgba(0, 255, 136, 0.13); }
+    50% { background: rgba(0, 255, 136, 0.35); box-shadow: var(--neon-lg); }
+    100% { background: rgba(0, 255, 136, 0.06); }
+  }
+
+  /* HUD */
+  .hud {
+    background: rgba(28, 28, 46, 0.3);
+    border: 1px solid rgba(0, 255, 136, 0.3);
+    box-shadow: var(--neon-sm);
+    backdrop-filter: blur(8px);
+    padding: 1.5rem; position: relative;
+  }
+  .hud-corner {
+    position: absolute; width: 16px; height: 16px;
+    border: 2px solid var(--accent);
+  }
+  .hud-corner.tl { top: -1px; left: -1px; border-right: none; border-bottom: none; }
+  .hud-corner.tr { top: -1px; right: -1px; border-left: none; border-bottom: none; }
+  .hud-corner.bl { bottom: -1px; left: -1px; border-right: none; border-top: none; }
+  .hud-corner.br { bottom: -1px; right: -1px; border-left: none; border-top: none; }
+  .hud-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 1.25rem; padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .hud-title {
+    font-family: "Share Tech Mono", monospace;
+    font-size: 0.75rem; color: var(--accent);
+    letter-spacing: 0.15em; text-transform: uppercase;
+  }
+  .hud-status {
+    font-family: "Share Tech Mono", monospace;
+    font-size: 0.6875rem; color: var(--accent-tert);
+    display: flex; align-items: center; gap: 0.4rem;
+  }
+  .hud-status .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--accent); box-shadow: var(--neon-sm);
+    animation: blink 1.5s step-end infinite;
+  }
+  .hud-row {
+    display: flex; justify-content: space-between;
+    padding: 0.5rem 0;
+    font-family: "Share Tech Mono", monospace;
+    font-size: 0.8125rem;
+    border-bottom: 1px dashed var(--border);
+    gap: 0.75rem;
+  }
+  .hud-row:last-child { border-bottom: none; }
+  .hud-row .k { color: var(--muted-fg); flex-shrink: 0; }
+  .hud-row .v { color: var(--accent); text-align: right; word-break: break-all; font-variant-numeric: tabular-nums; }
+
+  /* STATS */
+  .stats {
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    background: rgba(18, 18, 26, 0.5);
+  }
+  .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); }
+  @media (min-width: 1024px) { .stats-grid { grid-template-columns: repeat(4, 1fr); } }
+  .stat {
+    padding: 2.5rem 1.5rem; border-right: 1px solid var(--border);
+    transition: background 150ms;
+  }
+  .stat:last-child { border-right: none; }
+  .stat:hover { background: rgba(0,255,136,0.04); }
+  @media (max-width: 767px) {
+    .stat:nth-child(2) { border-right: none; }
+    .stat:nth-child(1), .stat:nth-child(2) { border-bottom: 1px solid var(--border); }
+  }
+  .stat .num {
+    font-family: "Orbitron", monospace; font-weight: 800;
+    font-size: clamp(2rem, 5vw, 3rem);
+    color: var(--accent); text-shadow: var(--neon-sm);
+    margin-bottom: 0.5rem; line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .stat .num.red { color: var(--destructive); text-shadow: 0 0 10px rgba(255,51,102,0.5); }
+  .stat .num.blue { color: var(--accent-tert); text-shadow: 0 0 10px rgba(0,212,255,0.5); }
+  .stat .lbl {
+    font-family: "Share Tech Mono", monospace;
+    font-size: 0.6875rem; text-transform: uppercase;
+    letter-spacing: 0.2em; color: var(--muted-fg);
+  }
+  .stat .trend {
+    font-family: "Share Tech Mono", monospace;
+    font-size: 0.6875rem; color: var(--accent-tert);
+    margin-top: 0.25rem;
+  }
+
+  /* SECTION */
+  .section {
+    padding: 5rem 0;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    scroll-margin-top: 80px;
+  }
+  @media (min-width: 768px) { .section { padding: 7rem 0; } }
+  .section-head { margin-bottom: 3.5rem; max-width: 720px; }
+  .section-head.center { margin: 0 auto 3.5rem; text-align: center; }
+  .section-head.center .eyebrow { justify-content: center; }
+  .section-head .eyebrow { margin-bottom: 1.25rem; }
+  .section-head h2 {
+    font-weight: 800;
+    font-size: clamp(2rem, 5vw, 3.25rem);
+    line-height: 1.05; margin-bottom: 1rem;
+  }
+  .section-head h2 .neon { color: var(--accent); text-shadow: var(--neon-sm); }
+  .section-head h2 .mag { color: var(--accent-sec); text-shadow: 0 0 10px var(--accent-sec); }
+  .section-head p { color: var(--muted-fg); font-size: 0.9375rem; max-width: 540px; }
+  .section-head.center p { margin-left: auto; margin-right: auto; }
+  .accent-bars { display: flex; gap: 4px; margin-top: 1.5rem; }
+  .accent-bars span { height: 3px; background: var(--accent); box-shadow: var(--neon-sm); }
+  .accent-bars span:nth-child(1) { width: 48px; }
+  .accent-bars span:nth-child(2) { width: 24px; background: var(--accent-sec); box-shadow: var(--neon-sec); }
+  .accent-bars span:nth-child(3) { width: 12px; background: var(--accent-tert); box-shadow: var(--neon-tert); }
+
+  /* TOOLBAR */
+  .toolbar {
+    display: flex; flex-wrap: wrap; gap: 0.75rem;
+    align-items: center; margin-bottom: 2.5rem;
+  }
+  .search-wrap { position: relative; flex: 1 1 240px; min-width: 180px; }
+  .search-prefix {
+    position: absolute; left: 0.875rem; top: 50%;
+    transform: translateY(-50%);
+    color: var(--accent);
+    font-family: "Share Tech Mono", monospace;
+    font-size: 1rem; pointer-events: none;
+  }
+  .search {
+    width: 100%; height: 44px;
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    color: var(--accent);
+    padding: 0 0.875rem 0 2rem;
+    font-family: "Share Tech Mono", monospace;
+    font-size: 0.8125rem; outline: none;
+    transition: all 200ms ease;
+  }
+  .search::placeholder { color: var(--muted-fg); }
+  .search:focus { border-color: var(--accent); box-shadow: var(--neon-sm); }
+  .chip {
+    font-family: "Share Tech Mono", monospace;
+    font-size: 0.6875rem; text-transform: uppercase;
+    letter-spacing: 0.12em; padding: 0 0.875rem;
+    height: 44px; background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted-fg); cursor: pointer;
+    transition: all 150ms ease;
+  }
+  .chip:hover { color: var(--fg); border-color: rgba(0,255,136,0.5); }
+  .chip.active {
+    background: var(--accent); border-color: var(--accent);
+    color: var(--bg); font-weight: 700;
+    box-shadow: var(--neon-sm);
+  }
+  .sel {
+    font-family: "Share Tech Mono", monospace;
+    font-size: 0.6875rem; text-transform: uppercase;
+    letter-spacing: 0.12em; padding: 0 0.875rem;
+    height: 44px; background: var(--input-bg);
+    border: 1px solid var(--border);
+    color: var(--fg); cursor: pointer; outline: none;
+    appearance: none; -webkit-appearance: none;
+    transition: all 150ms ease;
+  }
+  .sel:hover { border-color: rgba(0,255,136,0.5); }
+  .sel:focus { border-color: var(--accent); color: var(--accent); }
+  .sel option { background: #12121a; color: #e0e0e0; }
+
+  /* PLAYER GRID */
+  .player-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 1rem;
+  }
+  .player-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 0;
+    transition: all 300ms ease, opacity 200ms ease;
+    position: relative;
+    animation: cardIn 350ms ease both;
+    overflow: hidden;
+    cursor: pointer;
+    outline: none;
+  }
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .player-card:hover, .player-card:focus-visible {
+    transform: translateY(-3px);
+    border-color: var(--accent);
+    box-shadow: var(--neon);
+    filter: drop-shadow(0 0 12px rgba(0,255,136,0.3));
+  }
+  .player-card.online {
+    border-color: rgba(0,255,136,0.4);
+    background: linear-gradient(180deg, rgba(0,255,136,0.07), var(--card) 65%);
+  }
+  .player-card.online:hover {
+    border-color: var(--accent);
+    box-shadow: var(--neon-lg);
+  }
+  .player-card.banned {
+    border-color: rgba(255,51,102,0.45);
+    background: linear-gradient(180deg, rgba(255,51,102,0.07), var(--card) 65%);
+  }
+  .player-card.banned:hover {
+    border-color: var(--destructive);
+    box-shadow: 0 0 10px #ff3366, 0 0 20px rgba(255,51,102,0.38);
+  }
+  .pc-inner {
+    display: flex; align-items: center; gap: 0.75rem;
+    padding: 0.875rem 1rem; min-height: 68px;
+  }
+  .pc-avatar {
+    position: relative; flex: 0 0 auto;
+    width: 38px; height: 38px;
+  }
+  .pc-avatar img, .pc-avatar .ph {
+    width: 38px; height: 38px; display: block;
+    background: #1b1b28; border: 1px solid var(--border);
+    image-rendering: pixelated;
+  }
+  .pc-avatar .ph {
+    display: grid; place-items: center;
+    font-family: "Orbitron", monospace; font-weight: 700;
+    font-size: 15px; color: #8b98a5;
+  }
+  .pc-avatar .dot {
+    position: absolute; right: -3px; bottom: -3px;
+    width: 11px; height: 11px; border-radius: 50%;
+    border: 2px solid #0d0d14; background: #3f4652;
+  }
+  .player-card.online .pc-avatar .dot {
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent);
+    animation: blink 1.5s step-end infinite;
+  }
+  .pc-info { flex: 1 1 auto; min-width: 0; }
+  .pc-name {
+    font-family: "JetBrains Mono", monospace;
+    font-weight: 600; font-size: 0.8125rem;
+    color: var(--fg); white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis;
+    letter-spacing: 0.01em;
+  }
+  .player-card.online .pc-name {
+    color: #c8ffe4;
+    text-shadow: 0 0 10px rgba(0,255,136,0.25);
+  }
+  .pc-tags { display: flex; gap: 0.3rem; margin-top: 0.35rem; flex-wrap: wrap; }
+  .tag {
+    font-family: "Share Tech Mono", monospace;
+    font-size: 0.5625rem; letter-spacing: 0.1em;
+    text-transform: uppercase; padding: 0.15rem 0.4rem;
+    border: 1px solid currentColor; line-height: 1.4;
+    white-space: nowrap;
+  }
+  .tag.survival { color: #7fe3a2; background: rgba(127,227,162,0.07); }
+  .tag.creative { color: #7cc4ff; background: rgba(124,196,255,0.07); }
+  .tag.adventure { color: #ffc46b; background: rgba(255,196,107,0.07); }
+  .tag.spectator { color: #b0bcc9; background: rgba(176,188,201,0.07); }
+  .tag.on { color: var(--accent); background: rgba(0,255,136,0.1); text-shadow: 0 0 8px rgba(0,255,136,0.4); }
+  .tag.ban { color: var(--destructive); background: rgba(255,51,102,0.1); }
+  .tag.enabled { color: var(--accent); background: rgba(0,255,136,0.1); }
+  .tag.disabled { color: var(--muted-fg); background: rgba(107,114,128,0.1); }
+  .tag.loaded { color: var(--accent-tert); background: rgba(0,212,255,0.1); }
+  .tag.unloaded { color: var(--destructive); background: rgba(255,51,102,0.1); }
+  .pc-ping {
+    flex: 0 0 auto;
+    font-family: "Share Tech Mono", monospace;
+    font-size: 0.6875rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--muted-fg);
+  }
+  .pc-ping.good { color: var(--accent); text-shadow: 0 0 8px rgba(0,255,136,0.4); }
+  .pc-ping.mid { color: #ffc46b; text-shadow: 0 0 8px rgba(255,196,107,0.3); }
+  .pc-ping.bad { color: var(--destructive); text-shadow: 0 0 8px rgba(255,51,102,0.35); }
+
+  /* PLUGIN GRID */
+  .plugin-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+  }
+  .plugin-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 1.25rem;
+    transition: all 300ms ease, opacity 200ms ease;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    animation: cardIn 350ms ease both;
+    position: relative;
+  }
+  .plugin-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--accent);
+    box-shadow: var(--neon);
+  }
+  .plugin-card.disabled { opacity: 0.7; }
+  .plugin-card.disabled:hover { opacity: 1; }
+  .plugin-head { display: flex; align-items: center; gap: 0.75rem; }
+  .plugin-icon {
+    width: 42px; height: 42px;
+    border: 1px solid var(--border);
+    background: var(--muted);
+    display: grid; place-items: center;
+    flex-shrink: 0; overflow: hidden;
+    color: var(--accent);
+  }
+  .plugin-icon img { width: 100%; height: 100%; object-fit: cover; image-rendering: pixelated; }
+  .plugin-title-group { flex: 1; min-width: 0; }
+  .plugin-name {
+    font-family: "Orbitron", monospace;
+    font-weight: 700; font-size: 0.9375rem;
+    color: var(--fg); white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis;
+    transition: color 300ms ease;
+  }
+  .plugin-card:hover .plugin-name { color: var(--accent); text-shadow: var(--neon-sm); }
+  .plugin-version {
+    font-family: "Share Tech Mono", monospace;
+    font-size: 0.6875rem; color: var(--accent-tert);
+    letter-spacing: 0.08em; margin-top: 0.1rem;
+  }
+  .plugin-size {
+    font-family: "Share Tech Mono", monospace;
+    font-size: 0.6875rem; color: var(--muted-fg);
+    flex-shrink: 0;
+  }
+  .plugin-file {
+    font-family: "Share Tech Mono", monospace;
+    font-size: 0.6875rem; color: var(--muted-fg);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .plugin-file::before { content: ">> "; color: var(--accent); }
+  .plugin-desc {
+    font-size: 0.8125rem; color: var(--muted-fg);
+    line-height: 1.6; flex: 1;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .plugin-foot {
+    display: flex; justify-content: space-between;
+    align-items: center; gap: 0.5rem;
+    padding-top: 0.75rem;
+    border-top: 1px dashed var(--border);
+    flex-wrap: wrap;
+  }
+  .plugin-authors, .plugin-status { display: flex; gap: 0.35rem; flex-wrap: wrap; }
+  .plugin-authors .tag { color: var(--accent-sec); background: rgba(255,0,255,0.07); }
+
+  /* EMPTY / STATUS */
+  .empty {
+    grid-column: 1 / -1; text-align: center; padding: 4rem 1.5rem;
+    border: 1px dashed var(--border); background: rgba(255,255,255,0.012);
+    color: var(--muted-fg);
+  }
+  .empty-icon {
+    font-size: 2rem; margin-bottom: 0.75rem;
+    color: var(--accent); text-shadow: var(--neon-sm);
+    animation: blink 2.2s step-end infinite;
+  }
+  .empty p { font-size: 0.8125rem; letter-spacing: 0.05em; }
+  .status {
+    margin-top: 1.5rem; padding: 1rem 1.25rem;
+    font-size: 0.8125rem; line-height: 1.7;
+    letter-spacing: 0.02em; display: none;
+  }
+  .status.show { display: block; }
+  .status.error {
+    background: rgba(255,51,102,0.07);
+    border: 1px solid rgba(255,51,102,0.4);
+    color: #ffb8c6;
+  }
+  .status.error::before { content: "ERR // "; color: var(--destructive); font-weight: 700; }
+  .status.loading {
+    background: rgba(0,212,255,0.06);
+    border: 1px solid rgba(0,212,255,0.35);
+    color: #a8dcff;
+  }
+  .status.loading::before { content: "SYS // "; color: var(--accent-tert); font-weight: 700; }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 4rem 0 2rem;
+    background: rgba(10,10,15,0.8);
+  }
+  .footer-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 2rem; margin-bottom: 3rem;
+  }
+  @media (min-width: 768px) { .footer-grid { grid-template-columns: 2fr 1fr 1.4fr; } }
+  .footer-brand .brand { margin-bottom: 1rem; }
+  .footer-brand p {
+    color: var(--muted-fg); font-size: 0.8125rem;
+    line-height: 1.6; max-width: 320px;
+  }
+  .footer-col h4 {
+    font-family: "Share Tech Mono", monospace;
+    font-size: 0.6875rem; text-transform: uppercase;
+    letter-spacing: 0.2em; color: var(--accent);
+    margin-bottom: 1rem;
+  }
+  .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 0.625rem; }
+  .footer-col a {
+    font-family: "Share Tech Mono", monospace;
+    font-size: 0.8125rem; color: var(--muted-fg);
+    transition: color 150ms;
+  }
+  .footer-col a::before { content: "./"; color: var(--accent-tert); margin-right: 0.25rem; }
+  .footer-col a:hover { color: var(--accent); text-shadow: var(--neon-sm); }
+  .footer-bottom {
+    border-top: 1px solid var(--border);
+    padding-top: 2rem; display: flex;
+    justify-content: space-between; align-items: center;
+    gap: 1rem; flex-wrap: wrap;
+  }
+  .footer-bottom .copyright {
+    font-family: "Share Tech Mono", monospace;
+    font-size: 0.6875rem; color: var(--muted-fg);
+    letter-spacing: 0.05em;
+  }
+
+  /* MODAL */
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 200;
+    background: rgba(5, 5, 10, 0.88);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    display: flex; align-items: center; justify-content: center;
+    padding: 1rem;
+    opacity: 0; pointer-events: none;
+    transition: opacity 200ms ease;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: auto; }
+  .modal {
+    position: relative;
+    width: 100%; max-width: 540px;
+    max-height: 90vh; overflow-y: auto;
+    background: var(--bg);
+    border: 1px solid var(--accent);
+    box-shadow: var(--neon-lg);
+    transform: translateY(12px) scale(0.98);
+    transition: transform 220ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .modal-overlay.open .modal { transform: translateY(0) scale(1); }
+  .modal .term-header { position: relative; }
+  .modal-close {
+    margin-left: auto;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted-fg);
+    font-family: "Share Tech Mono", monospace;
+    font-size: 0.6875rem;
+    letter-spacing: 0.08em;
+    padding: 0.3rem 0.6rem;
+    cursor: pointer;
+    transition: all 150ms ease;
+  }
+  .modal-close:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+    box-shadow: var(--neon-sm);
+  }
+  .term-header {
+    display: flex; align-items: center; gap: 0.5rem;
+    padding: 0.75rem 1rem; background: var(--muted);
+    border-bottom: 1px solid var(--border);
+  }
+  .term-dot { width: 12px; height: 12px; border-radius: 50%; }
+  .term-dot.r { background: #ff5f56; }
+  .term-dot.y { background: #ffbd2e; }
+  .term-dot.g { background: #27c93f; }
+  .term-title {
+    margin-left: 0.75rem;
+    font-family: "Share Tech Mono", monospace;
+    font-size: 0.75rem; color: var(--muted-fg);
+  }
+  .modal-body { padding: 1.5rem; }
+  .modal-loading {
+    font-family: "Share Tech Mono", monospace;
+    font-size: 0.8125rem;
+    color: var(--accent);
+    padding: 1.5rem 0;
+    text-align: center;
+    letter-spacing: 0.05em;
+  }
+  .detail-head {
+    display: flex; align-items: center; gap: 1rem;
+    padding-bottom: 1.25rem; margin-bottom: 1.25rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .detail-avatar {
+    width: 64px; height: 64px;
+    border: 1px solid var(--border);
+    background: var(--muted);
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+  .detail-avatar img { width: 100%; height: 100%; display: block; image-rendering: pixelated; }
+  .detail-avatar .ph {
+    width: 100%; height: 100%;
+    display: grid; place-items: center;
+    font-family: "Orbitron", monospace; font-weight: 700;
+    font-size: 24px; color: #8b98a5;
+  }
+  .detail-avatar.online { border-color: var(--accent); box-shadow: var(--neon-sm); }
+  .detail-avatar.banned { border-color: var(--destructive); box-shadow: 0 0 10px rgba(255,51,102,0.4); }
+  .detail-name {
+    font-family: "Orbitron", monospace;
+    font-weight: 800; font-size: 1.25rem;
+    color: var(--fg); word-break: break-all;
+  }
+  .detail-uuid {
+    font-family: "Share Tech Mono", monospace;
+    font-size: 0.6875rem;
+    color: var(--muted-fg);
+    margin-top: 0.35rem;
+    word-break: break-all;
+  }
+  .detail-rows { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.5rem; }
+  .detail-row {
+    display: flex; justify-content: space-between; gap: 1rem;
+    font-family: "Share Tech Mono", monospace;
+    font-size: 0.8125rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px dashed var(--border);
+  }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-row .k { color: var(--muted-fg); letter-spacing: 0.08em; flex-shrink: 0; }
+  .detail-row .v {
+    color: var(--fg); text-align: right;
+    word-break: break-all; max-width: 64%;
+  }
+  .detail-row .v.on { color: var(--accent); text-shadow: var(--neon-sm); }
+  .detail-row .v.ban { color: var(--destructive); }
+  .detail-foot {
+    font-family: "Share Tech Mono", monospace;
+    font-size: 0.6875rem;
+    color: var(--muted-fg);
+    text-align: center;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+    letter-spacing: 0.1em;
+  }
+  .detail-foot .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--accent); box-shadow: var(--neon-sm);
+    animation: blink 1.5s step-end infinite;
+  }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(24px);
+    background: var(--bg);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    padding: 0.75rem 1.25rem;
+    font-family: "Share Tech Mono", monospace;
+    font-size: 0.8125rem;
+    letter-spacing: 0.1em;
+    box-shadow: var(--neon-lg);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 300ms cubic-bezier(0.4, 0, 0.2, 1),
+                transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 300;
+    max-width: 90vw;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  .toast.error {
+    border-color: var(--destructive);
+    color: var(--destructive);
+    box-shadow: 0 0 10px #ff3366, 0 0 20px rgba(255,51,102,0.4);
+  }
+
+  /* ===== FAB 悬浮 SYNC 控件 ===== */
+  .fab-sync {
+    position: fixed;
+    right: 1.5rem;
+    bottom: 1.5rem;
+    z-index: 70;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: "Share Tech Mono", monospace;
+    font-weight: 700;
+    font-size: 0.8125rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    background: var(--accent);
+    color: var(--bg);
+    border: 2px solid var(--accent);
+    padding: 0 1.25rem;
+    height: 52px;
+    cursor: pointer;
+    box-shadow: var(--neon-lg);
+    transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    clip-path: polygon(0 8px, 8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%);
+    animation: fabPulse 3s ease-in-out infinite;
+  }
+  @keyframes fabPulse {
+    0%, 100% { box-shadow: 0 0 10px #00ff88, 0 0 20px rgba(0,255,136,0.38), 0 0 40px rgba(0,255,136,0.19); }
+    50% { box-shadow: 0 0 12px #00ff88, 0 0 28px rgba(0,255,136,0.55), 0 0 52px rgba(0,255,136,0.28); }
+  }
+  .fab-sync:hover {
+    filter: brightness(1.1);
+    transform: translateY(-2px);
+    animation-play-state: paused;
+  }
+  .fab-sync:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+  .fab-sync:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    animation-play-state: paused;
+  }
+  .fab-sync .fab-icon { transition: transform 500ms ease; }
+  .fab-sync:disabled .fab-icon { animation: spin 800ms linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @media (max-width: 520px) {
+    .fab-sync {
+      right: 1rem;
+      bottom: 1rem;
+      height: 48px;
+      padding: 0 1rem;
+      font-size: 0.75rem;
+    }
+    .fab-sync .fab-label { display: none; }
+  }
+
+  /* REVEAL */
+  .reveal {
+    opacity: 0; transform: translateY(20px);
+    transition: opacity 400ms ease, transform 400ms ease;
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation: none !important;
+      transition: none !important;
+    }
+    .reveal { opacity: 1; transform: none; }
+    .glitch::before, .glitch::after { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="scanbar"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="container nav-inner">
+    <a href="#" class="brand"><span class="blink-dot"></span>PLAYER_MATRIX//</a>
+    <div class="nav-links">
+      <a href="#players">/players</a>
+      <a href="#plugins">/plugins</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="container">
+    <div class="hero-grid">
+      <div class="hero-text reveal">
+        <span class="eyebrow">DATA_FEED / open-api</span>
+        <h1><span class="glitch" data-text="PLAYER">PLAYER</span><br>MATRIX<span class="cursor"></span></h1>
+        <div class="hero-sub"><span class="prompt">$</span> stream --source=open-api --interval=30s<span class="cursor"></span></div>
+        <p class="desc">实时玩家与插件数据监控终端。玩家列表、插件清单、玩家详情三条数据流均来自 open-api，每 30 秒静默同步。卡片增量更新——只更新变化的内容，不重建整页。点击任意玩家卡片可实时查询详细档案，同时刷新完整玩家列表。</p>
+        <div class="hero-addr" id="heroAddr" role="button" tabindex="0" aria-label="点击复制服务器地址 play.simpfun.cn:21084" title="点击复制服务器地址">
+          <span class="hero-addr-label">&gt; SERVER_ADDR :</span>
+          <span class="hero-addr-value">play.simpfun.cn:21084</span>
+          <svg class="hero-addr-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        </div>
+      </div>
+      <div class="hud chamfer reveal" style="display:none;" data-show="lg">
+        <span class="hud-corner tl"></span><span class="hud-corner tr"></span>
+        <span class="hud-corner bl"></span><span class="hud-corner br"></span>
+        <div class="hud-header">
+          <span class="hud-title">// API_DIAGNOSTIC</span>
+          <span class="hud-status"><span class="dot"></span>LIVE</span>
+        </div>
+        <div class="hud-row"><span class="k">TOTAL_NODES</span><span class="v" id="hudTotal">—</span></div>
+        <div class="hud-row"><span class="k">ONLINE_NOW</span><span class="v" id="hudOnline">—</span></div>
+        <div class="hud-row"><span class="k">LAST_SYNC</span><span class="v" id="hudSync">—</span></div>
+        <div class="hud-row"><span class="k">NEXT_SYNC</span><span class="v" id="hudNext">—</span></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- STATS -->
+<section class="stats">
+  <div class="container">
+    <div class="stats-grid">
+      <div class="stat reveal">
+        <div class="num" id="statTotal">—</div>
+        <div class="lbl">TOTAL_NODES</div>
+        <div class="trend">ALL REGISTERED</div>
+      </div>
+      <div class="stat reveal">
+        <div class="num" id="statOnline">—</div>
+        <div class="lbl">ONLINE_NOW</div>
+        <div class="trend">ACTIVE SESSIONS</div>
+      </div>
+      <div class="stat reveal">
+        <div class="num red" id="statBanned">—</div>
+        <div class="lbl">BANNED</div>
+        <div class="trend">TERMINATED</div>
+      </div>
+      <div class="stat reveal">
+        <div class="num blue" id="statPing">—</div>
+        <div class="lbl">AVG_LATENCY</div>
+        <div class="trend">ONLINE ONLY</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PLAYERS -->
+<section class="section" id="players">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">NODE_MANIFEST</span>
+      <h2>Live <span class="neon">player</span> feed.</h2>
+      <p>数据源 /open-api/players。支持按会话状态、游戏模式筛选与按名称搜索。点击任意卡片会请求 /open-api/players/{uuid} 获取详细档案，并同时刷新完整玩家列表。</p>
+      <div class="accent-bars"><span></span><span></span><span></span></div>
+    </div>
+
+    <div class="toolbar reveal">
+      <div class="search-wrap">
+        <span class="search-prefix">&gt;</span>
+        <input id="search" class="search" type="search" placeholder="grep player_name…" autocomplete="off" spellcheck="false" />
+      </div>
+      <div class="chips" id="filters" style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+        <button class="chip active chamfer-sm" data-filter="all">ALL</button>
+        <button class="chip chamfer-sm" data-filter="online">ONLINE</button>
+        <button class="chip chamfer-sm" data-filter="offline">OFFLINE</button>
+        <button class="chip chamfer-sm" data-filter="banned">BANNED</button>
+      </div>
+      <select class="sel chamfer-sm" id="gamemodeFilter">
+        <option value="all">MODE :: ALL</option>
+      </select>
+      <select class="sel chamfer-sm" id="avatarProviderSel" title="切换玩家头像服务">
+        <option value="minotar">AVATAR :: MINOTAR</option>
+        <option value="mineatar">AVATAR :: MINEATAR</option>
+        <option value="mc-heads">AVATAR :: MC-HEADS</option>
+      </select>
+    </div>
+
+    <div class="player-grid" id="grid"></div>
+    <div class="status" id="status"></div>
+  </div>
+</section>
+
+<!-- PLUGINS -->
+<section class="section" id="plugins">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">PLUGIN_MANIFEST</span>
+      <h2>Installed <span class="mag">plugins.</span></h2>
+      <p>数据源 /open-api/plugins。展示插件文件名、版本、作者、磁盘占用与加载状态。</p>
+      <div class="accent-bars"><span></span><span></span><span></span></div>
+    </div>
+
+    <div class="toolbar reveal">
+      <div class="search-wrap">
+        <span class="search-prefix">&gt;</span>
+        <input id="pluginSearch" class="search" type="search" placeholder="grep plugin_name…" autocomplete="off" spellcheck="false" />
+      </div>
+      <div class="chips" id="pluginFilters" style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+        <button class="chip active chamfer-sm" data-filter="all">ALL</button>
+        <button class="chip chamfer-sm" data-filter="enabled">ENABLED</button>
+        <button class="chip chamfer-sm" data-filter="disabled">DISABLED</button>
+      </div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:0.6875rem;color:var(--muted-fg);letter-spacing:0.1em;" id="pluginCount">—</div>
+    </div>
+
+    <div class="plugin-grid" id="pluginGrid"></div>
+    <div class="status" id="pluginStatus"></div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="#" class="brand"><span class="blink-dot"></span>PLAYER_MATRIX//</a>
+        <p>实时玩家与插件数据监控终端。数据源：/open-api/players · /open-api/plugins · /open-api/players/{uuid}。</p>
+      </div>
+      <div class="footer-col">
+        <h4>// SYSTEM</h4>
+        <ul>
+          <li><a href="#players">players</a></li>
+          <li><a href="#plugins">plugins</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>// CONTACT</h4>
+        <ul>
+          <li><a href="https://ifdian.net/a/Cryon-z" target="_blank" rel="noopener noreferrer" title="服主爱发电">Cryon-z afdian</a></li>
+          <li><a href="https://b23.tv/SgX1srp" target="_blank" rel="noopener noreferrer" title="服主bilibili">Cryon-z bilibili</a></li>
+          <li><a href="https://qm.qq.com/q/fUWX2E3QSk" target="_blank" rel="noopener noreferrer" title="服务器Q群">Server QQ_Group</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span class="copyright">© 2026 Dream Sailing // OPanel open-api</span>
+    </div>
+  </div>
+</footer>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" aria-hidden="true">
+  <div class="modal chamfer" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="term-header">
+      <span class="term-dot r"></span><span class="term-dot y"></span><span class="term-dot g"></span>
+      <span class="term-title" id="modalTitle">player_query.exe</span>
+      <button class="modal-close" id="modalClose" aria-label="Close">[ESC] ✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<!-- FLOATING SYNC BUTTON -->
+<button class="fab-sync" id="refreshBtn2" title="手动同步数据" aria-label="手动同步数据">
+  <svg class="fab-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="23 4 23 10 17 10"/>
+    <polyline points="1 20 1 14 7 14"/>
+    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+  </svg>
+  <span class="fab-label">SYNC_NOW</span>
+</button>
+
+<!-- TOAST -->
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ============================================================
+     API BASE & SERVER ADDR
+     ============================================================ */
+  const SERVER_ADDR = "play.simpfun.cn:21084";
+  const BASE = "http://play.simpfun.cn:29024";
+  const PLAYERS_URL = BASE + "/open-api/players";
+  const PLUGINS_URL = BASE + "/open-api/plugins";
+  const playerDetailUrl = (uuid) => BASE + "/open-api/players/" + encodeURIComponent(uuid);
+  const PROXY = (url) => "https://api.allorigins.win/raw?url=" + encodeURIComponent(url);
+  const REFRESH_MS = 30000;
+
+  /* ============================================================
+     AVATAR PROVIDERS
+     ============================================================ */
+  const AVATAR_PROVIDER_LABEL = {
+    "minotar":  "MINOTAR",
+    "mineatar": "MINEATAR",
+    "mc-heads": "MC-HEADS"
+  };
+
+  let currentAvatarProvider = "minotar";
+
+  function getAvatarUrl(uuid, name, size = 64) {
+    const safeUuid = uuid ? encodeURIComponent(uuid) : "";
+    const safeName = name ? encodeURIComponent(name) : "";
+    switch (currentAvatarProvider) {
+      case "minotar":
+        return (safeUuid || safeName)
+          ? "https://minotar.net/helm/" + (safeUuid || safeName) + "/" + size + ".png"
+          : "";
+      case "mineatar": {
+        const scale = Math.max(1, Math.round(size / 8));
+        return (safeUuid || safeName)
+          ? "https://api.mineatar.io/face/" + (safeUuid || safeName) + "?scale=" + scale + "&overlay=true"
+          : "";
+      }
+      case "mc-heads":
+      default:
+        return (safeUuid || safeName)
+          ? "https://mc-heads.net/avatar/" + (safeUuid || safeName) + "/" + size + "/helm"
+          : "";
+    }
+  }
+
+  /* ============================================================
+     LABELS
+     ============================================================ */
+  const GAMEMODE_LABEL = {
+    survival: "生存",
+    creative: "创造",
+    adventure: "冒险",
+    spectator: "旁观"
+  };
+
+  /* ============================================================
+     STATE
+     ============================================================ */
+  const state = {
+    players: [],
+    plugins: [],
+    filter: "all",
+    search: "",
+    gamemode: "all",
+    pluginFilter: "all",
+    pluginSearch: "",
+    playersLoading: false,
+    pluginsLoading: false,
+    playersUpdated: null,
+    playersNext: 0,
+    pluginsNext: 0
+  };
+
+  /* ============================================================
+     CARD CACHES (增量渲染)
+     ============================================================ */
+  const playerCardCache = new Map();
+  const pluginCardCache = new Map();
+
+  function playerHash(p) {
+    return JSON.stringify([
+      p.name,
+      p.isOnline,
+      p.isBanned,
+      p.gamemode,
+      p.ping == null ? null : p.ping
+    ]);
+  }
+
+  function pluginHash(p) {
+    return JSON.stringify([
+      p.name, p.version, p.description, p.authors,
+      p.icon, p.size, p.enabled, p.loaded, p.fileName, p.website
+    ]);
+  }
+
+  function pluginKey(p) {
+    return p.fileName || p.name || JSON.stringify(p);
+  }
+
+  /* ============================================================
+     UTILS
+     ============================================================ */
+  const $ = (id) => document.getElementById(id);
+
+  function escapeHtml(s) {
+    if (s == null) return "";
+    return String(s).replace(/[&<>"']/g, (c) => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+    }[c]));
+  }
+
+  function initialOf(name) {
+    const clean = String(name || "").replace(/[^0-9a-zA-Z\u4e00-\u9fa5]/g, "");
+    return (clean.charAt(0) || "?").toUpperCase();
+  }
+
+  function setText(el, val) {
+    if (el && el.textContent !== val) el.textContent = val;
+  }
+
+  function formatSize(bytes) {
+    if (typeof bytes !== "number" || bytes < 0 || !isFinite(bytes)) return "—";
+    if (bytes < 1024) return bytes + " B";
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+    if (bytes < 1024 * 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(2) + " MB";
+    return (bytes / (1024 * 1024 * 1024)).toFixed(2) + " GB";
+  }
+
+  function resolveIconUrl(icon) {
+    if (!icon) return null;
+    if (/^(https?:|data:)/i.test(icon)) return icon;
+    if (icon.startsWith("/")) return BASE + icon;
+    return BASE + "/" + icon;
+  }
+
+  async function fetchJson(url) {
+    let lastErr = null;
+    for (const u of [url, PROXY(url)]) {
+      try {
+        const res = await fetch(u, { cache: "no-store" });
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        return await res.json();
+      } catch (e) {
+        lastErr = e;
+      }
+    }
+    throw lastErr || new Error("未知错误");
+  }
+
+  /* ============================================================
+     TOAST
+     ============================================================ */
+  const toastEl = $("toast");
+  let toastTimer = null;
+
+  function showToast(msg, type) {
+    toastEl.textContent = msg;
+    toastEl.className = "toast" + (type === "error" ? " error" : "");
+    void toastEl.offsetWidth;
+    toastEl.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { toastEl.classList.remove("show"); }, 1600);
+  }
+
+  /* ============================================================
+     CLIPBOARD
+     ============================================================ */
+  async function copyText(text) {
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        ta.setAttribute("readonly", "");
+        ta.style.position = "fixed";
+        ta.style.top = "0";
+        ta.style.left = "0";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.select();
+        ta.setSelectionRange(0, text.length);
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+      }
+      showToast("COPIED :: " + text);
+      return true;
+    } catch (e) {
+      console.error(e);
+      showToast("COPY_FAILED :: " + text, "error");
+      return false;
+    }
+  }
+
+  function bindCopy(el) {
+    if (!el) return;
+    const doCopy = (e) => {
+      e.preventDefault();
+      copyText(SERVER_ADDR);
+      el.classList.add("copied");
+      setTimeout(() => el.classList.remove("copied"), 500);
+    };
+    el.addEventListener("click", doCopy);
+    el.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") doCopy(e);
+    });
+  }
+
+  /* ============================================================
+     DOM REFS
+     ============================================================ */
+  const grid = $("grid");
+  const statusEl = $("status");
+  const pluginGrid = $("pluginGrid");
+  const pluginStatus = $("pluginStatus");
+  const pluginCount = $("pluginCount");
+  const hudTotal = $("hudTotal");
+  const hudOnline = $("hudOnline");
+  const hudSync = $("hudSync");
+  const hudNext = $("hudNext");
+  const refreshBtn = $("refreshBtn2");
+  const modalOverlay = $("modalOverlay");
+  const modalBody = $("modalBody");
+  const modalTitle = $("modalTitle");
+  const avatarProviderSel = $("avatarProviderSel");
+
+  bindCopy($("heroAddr"));
+
+  /* ============================================================
+     STATUS HELPERS
+     ============================================================ */
+  function setStatus(el, type, msg) {
+    if (!type) { el.className = "status"; el.textContent = ""; return; }
+    el.className = "status show " + type;
+    el.textContent = msg;
+  }
+
+  function updateTimeLabel() {
+    if (!state.playersUpdated) {
+      setText(hudSync, "—");
+      setText(hudNext, "—");
+      return;
+    }
+    const secs = Math.max(0, Math.ceil((state.playersNext - Date.now()) / 1000));
+    setText(hudSync, state.playersUpdated.toLocaleTimeString("zh-CN", { hour12: false }));
+    setText(hudNext, String(secs).padStart(2, "0") + "s");
+  }
+
+  /* ============================================================
+     PLAYERS — 加载
+     ============================================================ */
+  async function loadPlayers(silent) {
+    if (state.playersLoading) return;
+    state.playersLoading = true;
+    if (!silent) setStatus(statusEl, "loading", "正在拉取玩家数据流…");
+
+    try {
+      const data = await fetchJson(PLAYERS_URL);
+      if (!data || !Array.isArray(data.players)) throw new Error("返回数据格式不正确");
+      state.players = data.players;
+      state.playersUpdated = new Date();
+      syncGamemodeOptions();
+      setStatus(statusEl, null);
+      renderPlayers();
+    } catch (err) {
+      console.error(err);
+      if (!silent || state.players.length === 0) {
+        setStatus(statusEl, "error",
+          "数据流中断：" + (err && err.message ? err.message : err) +
+          " — 可能原因：① 接口未开启 CORS；② HTTPS 页面请求 HTTP 接口被拦截；③ 服务端暂不可达。");
+      }
+    } finally {
+      state.playersLoading = false;
+      state.playersNext = Date.now() + REFRESH_MS;
+      updateTimeLabel();
+    }
+  }
+
+  function visiblePlayers() {
+    const kw = state.search;
+    const list = state.players.filter((p) => {
+      if (state.filter === "online" && !p.isOnline) return false;
+      if (state.filter === "offline" && p.isOnline) return false;
+      if (state.filter === "banned" && !p.isBanned) return false;
+      if (state.gamemode !== "all" && p.gamemode !== state.gamemode) return false;
+      if (kw && !String(p.name || "").toLowerCase().includes(kw)) return false;
+      return true;
+    });
+    list.sort((a, b) => {
+      if (!!a.isOnline !== !!b.isOnline) return a.isOnline ? -1 : 1;
+      if (a.isOnline && b.isOnline) {
+        const pa = typeof a.ping === "number" ? a.ping : 9999;
+        const pb = typeof b.ping === "number" ? b.ping : 9999;
+        if (pa !== pb) return pa - pb;
+      }
+      return String(a.name || "").localeCompare(String(b.name || ""), "zh-Hans-CN");
+    });
+    return list;
+  }
+
+  function renderStats() {
+    const ps = state.players;
+    const online = ps.filter((p) => p.isOnline).length;
+    const banned = ps.filter((p) => p.isBanned).length;
+    const pings = ps.filter((p) => p.isOnline && typeof p.ping === "number").map((p) => p.ping);
+    const avg = pings.length ? Math.round(pings.reduce((a, b) => a + b, 0) / pings.length) : null;
+
+    setText($("statTotal"), String(ps.length).padStart(2, "0"));
+    setText($("statOnline"), String(online).padStart(2, "0"));
+    setText($("statBanned"), String(banned).padStart(2, "0"));
+    setText($("statPing"), avg === null ? "—" : avg + "ms");
+
+    setText(hudTotal, String(ps.length).padStart(2, "0"));
+    setText(hudOnline, String(online).padStart(2, "0"));
+  }
+
+  function buildPlayerCard(p, index, animate) {
+    const card = document.createElement("article");
+    card.className = "player-card chamfer" +
+      (p.isOnline ? " online" : "") +
+      (p.isBanned ? " banned" : "");
+    if (animate) {
+      card.style.animationDelay = Math.min(index * 18, 320) + "ms";
+    } else {
+      card.style.animation = "none";
+    }
+    card.title = "查询详情 · UUID: " + (p.uuid || "unknown");
+    card.setAttribute("role", "button");
+    card.setAttribute("tabindex", "0");
+    card.setAttribute("aria-label", "查询玩家 " + (p.name || "unknown") + " 详情");
+
+    const inner = document.createElement("div");
+    inner.className = "pc-inner";
+
+    /* Avatar */
+    const avatar = document.createElement("div");
+    avatar.className = "pc-avatar";
+    const url = getAvatarUrl(p.uuid, p.name, 64);
+    if (url) {
+      const img = document.createElement("img");
+      img.loading = "lazy";
+      img.alt = p.name || "player";
+      img.referrerPolicy = "no-referrer";
+      img.src = url;
+      img.addEventListener("error", function () {
+        const ph = document.createElement("div");
+        ph.className = "ph";
+        ph.textContent = initialOf(p.name);
+        img.replaceWith(ph);
+      }, { once: true });
+      avatar.appendChild(img);
+    } else {
+      const ph = document.createElement("div");
+      ph.className = "ph";
+      ph.textContent = initialOf(p.name);
+      avatar.appendChild(ph);
+    }
+    const dot = document.createElement("span");
+    dot.className = "dot";
+    avatar.appendChild(dot);
+
+    /* Info */
+    const info = document.createElement("div");
+    info.className = "pc-info";
+    const name = document.createElement("div");
+    name.className = "pc-name";
+    name.textContent = p.name || "(unknown)";
+    name.title = p.name || "";
+
+    const tags = document.createElement("div");
+    tags.className = "pc-tags";
+
+    const gm = document.createElement("span");
+    gm.className = "tag " + (p.gamemode || "survival");
+    gm.textContent = GAMEMODE_LABEL[p.gamemode] || p.gamemode || "未知";
+    tags.appendChild(gm);
+
+    if (p.isOnline) {
+      const t = document.createElement("span");
+      t.className = "tag on";
+      t.textContent = "ONLINE";
+      tags.appendChild(t);
+    }
+    if (p.isBanned) {
+      const t = document.createElement("span");
+      t.className = "tag ban";
+      t.textContent = "BANNED";
+      tags.appendChild(t);
+    }
+
+    info.append(name, tags);
+    inner.append(avatar, info);
+
+    /* Ping */
+    if (p.isOnline) {
+      const ping = document.createElement("div");
+      if (typeof p.ping === "number") {
+        const cls = p.ping < 60 ? "good" : p.ping < 150 ? "mid" : "bad";
+        ping.className = "pc-ping " + cls;
+        ping.textContent = p.ping + "ms";
+      } else {
+        ping.className = "pc-ping";
+        ping.textContent = "--";
+      }
+      inner.appendChild(ping);
+    }
+
+    card.appendChild(inner);
+
+    const handler = (e) => {
+      e.preventDefault();
+      openPlayerDetail(p);
+    };
+    card.addEventListener("click", handler);
+    card.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handler(e); }
+    });
+
+    return card;
+  }
+
+  /* ============================================================
+     PLAYERS — 增量渲染
+     ============================================================ */
+  function renderPlayers(force) {
+    renderStats();
+    const list = visiblePlayers();
+
+    if (force) {
+      grid.innerHTML = "";
+      playerCardCache.clear();
+    }
+
+    if (!list.length) {
+      if (grid.firstChild) {
+        grid.innerHTML = "";
+        playerCardCache.clear();
+      }
+      const empty = document.createElement("div");
+      empty.className = "empty";
+      empty.innerHTML =
+        '<div class="empty-icon">▚</div><p>' +
+        (state.players.length ? "NO_MATCH // 没有符合条件的玩家" : "NO_DATA // 暂无数据，请稍候刷新") +
+        "</p>";
+      grid.appendChild(empty);
+      return;
+    }
+
+    const emptyEl = grid.querySelector(".empty");
+    if (emptyEl) emptyEl.remove();
+
+    const seen = new Set();
+    let prevEl = null;
+
+    list.forEach((p, i) => {
+      seen.add(p.uuid);
+      const hash = playerHash(p);
+      const entry = playerCardCache.get(p.uuid);
+      let el;
+
+      if (entry && entry.hash === hash) {
+        el = entry.el;
+      } else {
+        const animate = !entry;
+        const newEl = buildPlayerCard(p, i, animate);
+        if (entry) entry.el.replaceWith(newEl);
+        playerCardCache.set(p.uuid, { el: newEl, hash });
+        el = newEl;
+      }
+
+      const nextSibling = prevEl ? prevEl.nextSibling : grid.firstChild;
+      if (el !== nextSibling) {
+        grid.insertBefore(el, nextSibling);
+      }
+      prevEl = el;
+    });
+
+    playerCardCache.forEach((entry, uuid) => {
+      if (!seen.has(uuid)) {
+        entry.el.remove();
+        playerCardCache.delete(uuid);
+      }
+    });
+  }
+
+  function syncGamemodeOptions() {
+    const sel = $("gamemodeFilter");
+    const current = state.gamemode;
+    const modes = Array.from(new Set(state.players.map((p) => p.gamemode).filter(Boolean))).sort();
+    const existing = Array.from(sel.options).slice(1).map((o) => o.value);
+
+    const same = modes.length === existing.length && modes.every((m, i) => m === existing[i]);
+    if (!same) {
+      sel.innerHTML = '<option value="all">MODE :: ALL</option>';
+      for (const m of modes) {
+        const opt = document.createElement("option");
+        opt.value = m;
+        opt.textContent = "MODE :: " + (GAMEMODE_LABEL[m] || m) + " [" + m + "]";
+        sel.appendChild(opt);
+      }
+    }
+
+    const nextValue = (current === "all" || modes.includes(current)) ? current : "all";
+    if (sel.value !== nextValue) sel.value = nextValue;
+    state.gamemode = sel.value;
+  }
+
+  /* ============================================================
+     PLAYER DETAIL MODAL
+     ============================================================ */
+  let lastFocused = null;
+
+  async function openPlayerDetail(p) {
+    if (!p || !p.uuid) return;
+    lastFocused = document.activeElement;
+    modalOverlay.classList.add("open");
+    modalOverlay.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
+    modalTitle.textContent = "query.exe // " + (p.name || "unknown");
+    modalBody.innerHTML =
+      '<div class="modal-loading">&gt; GET /open-api/players/' + escapeHtml(p.uuid) + ' …<span class="cursor"></span></div>';
+
+    // 同时静默刷新完整玩家列表（不阻塞详情请求）
+    loadPlayers(true);
+
+    let detail = null;
+    try {
+      const data = await fetchJson(playerDetailUrl(p.uuid));
+      if (data && typeof data === "object" && data.uuid) detail = data;
+    } catch (e) { /* fallback to latest list data */ }
+
+    // 优先使用列表中最新的玩家数据作为兜底
+    const latest = state.players.find((x) => x.uuid === p.uuid) || p;
+    const merged = detail ? Object.assign({}, latest, detail) : latest;
+    renderPlayerDetail(merged);
+  }
+
+  function renderPlayerDetail(d) {
+    const online = !!d.isOnline;
+    const banned = !!d.isBanned;
+    const name = d.name || "(unknown)";
+    const uuid = d.uuid || "";
+    const gm = d.gamemode || "unknown";
+    const ping = typeof d.ping === "number" ? d.ping : null;
+    const banReason = d.banReason || "";
+
+    const pingCls = ping == null ? "" : (ping < 60 ? "on" : ping < 150 ? "" : "ban");
+    const avatarUrl = getAvatarUrl(uuid, name, 128);
+    const initial = initialOf(name);
+
+    const avatarHtml = avatarUrl
+      ? '<img class="detail-img" src="' + avatarUrl + '" alt="' + escapeHtml(name) + '" referrerpolicy="no-referrer" />' +
+        '<div class="ph" style="display:none;">' + escapeHtml(initial) + '</div>'
+      : '<div class="ph">' + escapeHtml(initial) + '</div>';
+
+    modalBody.innerHTML =
+      '<div class="detail-head">' +
+        '<div class="detail-avatar ' + (online ? "online " : "") + (banned ? "banned" : "") + '">' +
+          avatarHtml +
+        '</div>' +
+        '<div style="min-width:0;">' +
+          '<div class="detail-name">' + escapeHtml(name) + '</div>' +
+          '<div class="detail-uuid">UUID :: ' + escapeHtml(uuid) + '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="detail-rows">' +
+        '<div class="detail-row"><span class="k">STATUS</span><span class="v ' + (online ? "on" : "") + '">' + (online ? "ONLINE" : "OFFLINE") + '</span></div>' +
+        '<div class="detail-row"><span class="k">BANNED</span><span class="v ' + (banned ? "ban" : "") + '">' + (banned ? "YES" : "NO") + '</span></div>' +
+        '<div class="detail-row"><span class="k">GAMEMODE</span><span class="v">' + escapeHtml(gm) + ' / ' + escapeHtml(GAMEMODE_LABEL[gm] || "?") + '</span></div>' +
+        (ping !== null ? '<div class="detail-row"><span class="k">PING</span><span class="v ' + pingCls + '">' + ping + ' ms</span></div>' : '') +
+        (banReason ? '<div class="detail-row"><span class="k">BAN_REASON</span><span class="v ban">' + escapeHtml(banReason) + '</span></div>' : '') +
+      '</div>' +
+      '<div class="detail-foot"><span class="dot"></span>TRANSMISSION COMPLETE</div>';
+
+    const img = modalBody.querySelector(".detail-img");
+    if (img) {
+      img.addEventListener("error", () => {
+        img.style.display = "none";
+        const ph = img.nextElementSibling;
+        if (ph) ph.style.display = "grid";
+      }, { once: true });
+    }
+  }
+
+  function closeModal() {
+    modalOverlay.classList.remove("open");
+    modalOverlay.setAttribute("aria-hidden", "true");
+    document.body.style.overflow = "";
+    if (lastFocused && typeof lastFocused.focus === "function") lastFocused.focus();
+  }
+
+  /* ============================================================
+     PLUGINS — 加载
+     ============================================================ */
+  async function loadPlugins(silent) {
+    if (state.pluginsLoading) return;
+    state.pluginsLoading = true;
+    if (!silent) setStatus(pluginStatus, "loading", "正在拉取插件清单…");
+
+    try {
+      const data = await fetchJson(PLUGINS_URL);
+      let arr = [];
+      if (data && Array.isArray(data.plugins)) arr = data.plugins;
+      else if (Array.isArray(data)) arr = data;
+      else throw new Error("返回数据格式不正确");
+
+      state.plugins = arr;
+      setStatus(pluginStatus, null);
+      renderPlugins();
+    } catch (err) {
+      console.error(err);
+      if (!silent || state.plugins.length === 0) {
+        setStatus(pluginStatus, "error",
+          "插件清单中断：" + (err && err.message ? err.message : err) +
+          " — 检查接口可达性或 CORS 配置。");
+      }
+    } finally {
+      state.pluginsLoading = false;
+      state.pluginsNext = Date.now() + REFRESH_MS;
+    }
+  }
+
+  function visiblePlugins() {
+    const kw = state.pluginSearch;
+    return state.plugins.filter((p) => {
+      if (state.pluginFilter === "enabled" && !p.enabled) return false;
+      if (state.pluginFilter === "disabled" && p.enabled) return false;
+      if (kw) {
+        const hay = [p.name, p.fileName, p.description, (p.authors || []).join(" ")]
+          .filter(Boolean).join(" ").toLowerCase();
+        if (!hay.includes(kw)) return false;
+      }
+      return true;
+    });
+  }
+
+  function buildPluginCard(p, index, animate) {
+    const card = document.createElement("article");
+    card.className = "plugin-card chamfer" + (p.enabled ? "" : " disabled");
+    if (animate) {
+      card.style.animationDelay = Math.min(index * 20, 360) + "ms";
+    } else {
+      card.style.animation = "none";
+    }
+
+    const head = document.createElement("div");
+    head.className = "plugin-head";
+
+    const iconBox = document.createElement("div");
+    iconBox.className = "plugin-icon chamfer-sm";
+    const iconUrl = resolveIconUrl(p.icon);
+    if (iconUrl) {
+      const img = document.createElement("img");
+      img.loading = "lazy";
+      img.alt = "";
+      img.referrerPolicy = "no-referrer";
+      img.src = iconUrl;
+      img.addEventListener("error", () => { iconBox.innerHTML = defaultPluginIconSvg(); }, { once: true });
+      iconBox.appendChild(img);
+    } else {
+      iconBox.innerHTML = defaultPluginIconSvg();
+    }
+
+    const titleGroup = document.createElement("div");
+    titleGroup.className = "plugin-title-group";
+    const nameEl = document.createElement("div");
+    nameEl.className = "plugin-name";
+    nameEl.textContent = p.name || p.fileName || "(unnamed)";
+    nameEl.title = p.name || "";
+    const verEl = document.createElement("div");
+    verEl.className = "plugin-version";
+    verEl.textContent = p.version ? "v" + p.version : "version :: unknown";
+    titleGroup.append(nameEl, verEl);
+
+    const sizeEl = document.createElement("div");
+    sizeEl.className = "plugin-size";
+    sizeEl.textContent = formatSize(p.size);
+
+    head.append(iconBox, titleGroup, sizeEl);
+
+    const fileEl = document.createElement("div");
+    fileEl.className = "plugin-file";
+    fileEl.textContent = p.fileName || "unknown.jar";
+    fileEl.title = p.fileName || "";
+
+    card.append(head, fileEl);
+
+    if (p.description) {
+      const desc = document.createElement("p");
+      desc.className = "plugin-desc";
+      desc.textContent = p.description;
+      desc.title = p.description;
+      card.appendChild(desc);
+    }
+
+    const foot = document.createElement("div");
+    foot.className = "plugin-foot";
+
+    const authors = document.createElement("div");
+    authors.className = "plugin-authors";
+    const authorList = Array.isArray(p.authors) ? p.authors : [];
+    if (authorList.length) {
+      authorList.slice(0, 3).forEach((a) => {
+        const t = document.createElement("span");
+        t.className = "tag";
+        t.textContent = a;
+        authors.appendChild(t);
+      });
+      if (authorList.length > 3) {
+        const more = document.createElement("span");
+        more.className = "tag";
+        more.textContent = "+" + (authorList.length - 3);
+        more.title = authorList.join(", ");
+        authors.appendChild(more);
+      }
+    } else {
+      const t = document.createElement("span");
+      t.className = "tag";
+      t.textContent = "NO_AUTHOR";
+      authors.appendChild(t);
+    }
+
+    const statusGroup = document.createElement("div");
+    statusGroup.className = "plugin-status";
+    const en = document.createElement("span");
+    en.className = "tag " + (p.enabled ? "enabled" : "disabled");
+    en.textContent = p.enabled ? "ENABLED" : "DISABLED";
+    statusGroup.appendChild(en);
+    const ld = document.createElement("span");
+    ld.className = "tag " + (p.loaded ? "loaded" : "unloaded");
+    ld.textContent = p.loaded ? "LOADED" : "UNLOADED";
+    statusGroup.appendChild(ld);
+
+    foot.append(authors, statusGroup);
+    card.appendChild(foot);
+
+    if (p.website) {
+      const site = document.createElement("a");
+      site.href = p.website;
+      site.target = "_blank";
+      site.rel = "noopener noreferrer";
+      site.style.fontFamily = "'Share Tech Mono', monospace";
+      site.style.fontSize = "0.6875rem";
+      site.style.color = "var(--accent-tert)";
+      site.style.textDecoration = "underline";
+      site.style.textUnderlineOffset = "2px";
+      site.style.wordBreak = "break-all";
+      site.textContent = ">> " + p.website;
+      site.addEventListener("click", (e) => e.stopPropagation());
+      card.appendChild(site);
+    }
+
+    return card;
+  }
+
+  function defaultPluginIconSvg() {
+    return '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>';
+  }
+
+  /* ============================================================
+     PLUGINS — 增量渲染
+     ============================================================ */
+  function renderPlugins(force) {
+    const total = state.plugins.length;
+    const enabled = state.plugins.filter((p) => p.enabled).length;
+    setText(pluginCount, total ? "// " + total + " TOTAL · " + enabled + " ENABLED" : "");
+
+    const list = visiblePlugins();
+
+    if (force) {
+      pluginGrid.innerHTML = "";
+      pluginCardCache.clear();
+    }
+
+    if (!list.length) {
+      if (pluginGrid.firstChild) {
+        pluginGrid.innerHTML = "";
+        pluginCardCache.clear();
+      }
+      const empty = document.createElement("div");
+      empty.className = "empty";
+      empty.innerHTML =
+        '<div class="empty-icon">▚</div><p>' +
+        (state.plugins.length ? "NO_MATCH // 没有符合条件的插件" : "NO_DATA // 暂无插件数据，请稍候刷新") +
+        "</p>";
+      pluginGrid.appendChild(empty);
+      return;
+    }
+
+    const emptyEl = pluginGrid.querySelector(".empty");
+    if (emptyEl) emptyEl.remove();
+
+    const seen = new Set();
+    let prevEl = null;
+
+    list.forEach((p, i) => {
+      const key = pluginKey(p);
+      seen.add(key);
+      const hash = pluginHash(p);
+      const entry = pluginCardCache.get(key);
+      let el;
+
+      if (entry && entry.hash === hash) {
+        el = entry.el;
+      } else {
+        const animate = !entry;
+        const newEl = buildPluginCard(p, i, animate);
+        if (entry) entry.el.replaceWith(newEl);
+        pluginCardCache.set(key, { el: newEl, hash });
+        el = newEl;
+      }
+
+      const nextSibling = prevEl ? prevEl.nextSibling : pluginGrid.firstChild;
+      if (el !== nextSibling) {
+        pluginGrid.insertBefore(el, nextSibling);
+      }
+      prevEl = el;
+    });
+
+    pluginCardCache.forEach((entry, key) => {
+      if (!seen.has(key)) {
+        entry.el.remove();
+        pluginCardCache.delete(key);
+      }
+    });
+  }
+
+  /* ============================================================
+     LOAD ALL
+     ============================================================ */
+  function loadAll(silent) {
+    loadPlayers(silent);
+    loadPlugins(silent);
+    if (!silent && refreshBtn) {
+      refreshBtn.disabled = true;
+      setTimeout(() => { refreshBtn.disabled = false; }, 600);
+    }
+  }
+
+  /* ============================================================
+     EVENTS
+     ============================================================ */
+  $("search").addEventListener("input", (e) => {
+    state.search = e.target.value.trim().toLowerCase();
+    renderPlayers();
+  });
+
+  $("filters").addEventListener("click", (e) => {
+    const btn = e.target.closest(".chip");
+    if (!btn) return;
+    state.filter = btn.dataset.filter;
+    Array.from(e.currentTarget.children).forEach((c) => c.classList.toggle("active", c === btn));
+    renderPlayers();
+  });
+
+  $("gamemodeFilter").addEventListener("change", (e) => {
+    state.gamemode = e.target.value;
+    renderPlayers();
+  });
+
+  avatarProviderSel.addEventListener("change", (e) => {
+    currentAvatarProvider = e.target.value;
+    if (modalOverlay.classList.contains("open")) closeModal();
+    renderPlayers(true);
+    showToast("AVATAR_SVC :: " + currentAvatarProvider.toUpperCase());
+  });
+
+  $("pluginSearch").addEventListener("input", (e) => {
+    state.pluginSearch = e.target.value.trim().toLowerCase();
+    renderPlugins();
+  });
+
+  $("pluginFilters").addEventListener("click", (e) => {
+    const btn = e.target.closest(".chip");
+    if (!btn) return;
+    state.pluginFilter = btn.dataset.filter;
+    Array.from(e.currentTarget.children).forEach((c) => c.classList.toggle("active", c === btn));
+    renderPlugins();
+  });
+
+  if (refreshBtn) refreshBtn.addEventListener("click", () => loadAll(false));
+
+  $("modalClose").addEventListener("click", closeModal);
+  modalOverlay.addEventListener("click", (e) => {
+    if (e.target === modalOverlay) closeModal();
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && modalOverlay.classList.contains("open")) {
+      closeModal();
+      return;
+    }
+    const search = $("search");
+    if (e.key === "/" && document.activeElement !== search &&
+        document.activeElement !== $("pluginSearch")) {
+      e.preventDefault();
+      search.focus();
+    }
+  });
+
+  /* ============================================================
+     TIMERS — 自动刷新使用静默模式
+     ============================================================ */
+  setInterval(() => {
+    updateTimeLabel();
+    if (!state.playersLoading && state.playersNext && Date.now() >= state.playersNext) {
+      loadPlayers(true);
+    }
+    if (!state.pluginsLoading && state.pluginsNext && Date.now() >= state.pluginsNext) {
+      loadPlugins(true);
+    }
+  }, 1000);
+
+  /* ============================================================
+     REVEAL
+     ============================================================ */
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add("visible");
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: "0px 0px -40px 0px" });
+  document.querySelectorAll(".reveal").forEach((el, i) => {
+    el.style.transitionDelay = (i % 3) * 80 + "ms";
+    observer.observe(el);
+  });
+
+  /* ============================================================
+     HUD VISIBILITY
+     ============================================================ */
+  function checkHud() {
+    const hud = document.querySelector('[data-show="lg"]');
+    if (!hud) return;
+    hud.style.display = window.innerWidth >= 1024 ? "" : "none";
+  }
+  checkHud();
+  window.addEventListener("resize", checkHud);
+
+  /* ============================================================
+     BOOT
+     ============================================================ */
+  state.playersNext = Date.now();
+  state.pluginsNext = Date.now();
+  loadAll(false);
+})();
+</script>
+</body>
+</html>
