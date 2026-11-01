@@ -135,7 +135,6 @@
   .btn-outline:hover { border-color: var(--accent); color: var(--accent); box-shadow: var(--neon-sm); }
   .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-  /* NAV */
   nav {
     position: fixed; top: 0; left: 0; right: 0; z-index: 50;
     background: rgba(10, 10, 15, 0.85);
@@ -166,7 +165,6 @@
     .nav-links { display: flex; }
   }
 
-  /* HERO */
   .hero {
     min-height: 100vh; display: flex; align-items: center;
     padding: 6rem 0 3rem; position: relative;
@@ -200,7 +198,6 @@
     line-height: 1.7; max-width: 520px; margin-bottom: 1.5rem;
   }
 
-  /* Hero 服务器地址复制 */
   .hero-addr {
     display: inline-flex; align-items: center; gap: 0.625rem;
     margin-bottom: 0.5rem;
@@ -246,7 +243,6 @@
     100% { background: rgba(0, 255, 136, 0.06); }
   }
 
-  /* HUD */
   .hud {
     background: rgba(28, 28, 46, 0.3);
     border: 1px solid rgba(0, 255, 136, 0.3);
@@ -294,7 +290,6 @@
   .hud-row .k { color: var(--muted-fg); flex-shrink: 0; }
   .hud-row .v { color: var(--accent); text-align: right; word-break: break-all; font-variant-numeric: tabular-nums; }
 
-  /* STATS */
   .stats {
     border-top: 1px solid var(--border);
     border-bottom: 1px solid var(--border);
@@ -332,7 +327,6 @@
     margin-top: 0.25rem;
   }
 
-  /* SECTION */
   .section {
     padding: 5rem 0;
     border-bottom: 1px solid var(--border);
@@ -359,7 +353,6 @@
   .accent-bars span:nth-child(2) { width: 24px; background: var(--accent-sec); box-shadow: var(--neon-sec); }
   .accent-bars span:nth-child(3) { width: 12px; background: var(--accent-tert); box-shadow: var(--neon-tert); }
 
-  /* TOOLBAR */
   .toolbar {
     display: flex; flex-wrap: wrap; gap: 0.75rem;
     align-items: center; margin-bottom: 2.5rem;
@@ -413,7 +406,6 @@
   .sel:focus { border-color: var(--accent); color: var(--accent); }
   .sel option { background: #12121a; color: #e0e0e0; }
 
-  /* PLAYER GRID */
   .player-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
@@ -525,7 +517,6 @@
   .pc-ping.mid { color: #ffc46b; text-shadow: 0 0 8px rgba(255,196,107,0.3); }
   .pc-ping.bad { color: var(--destructive); text-shadow: 0 0 8px rgba(255,51,102,0.35); }
 
-  /* PLUGIN GRID */
   .plugin-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -602,7 +593,6 @@
   .plugin-authors, .plugin-status { display: flex; gap: 0.35rem; flex-wrap: wrap; }
   .plugin-authors .tag { color: var(--accent-sec); background: rgba(255,0,255,0.07); }
 
-  /* EMPTY / STATUS */
   .empty {
     grid-column: 1 / -1; text-align: center; padding: 4rem 1.5rem;
     border: 1px dashed var(--border); background: rgba(255,255,255,0.012);
@@ -633,7 +623,6 @@
   }
   .status.loading::before { content: "SYS // "; color: var(--accent-tert); font-weight: 700; }
 
-  /* FOOTER */
   footer {
     border-top: 1px solid var(--border);
     padding: 4rem 0 2rem;
@@ -675,7 +664,6 @@
     letter-spacing: 0.05em;
   }
 
-  /* MODAL */
   .modal-overlay {
     position: fixed; inset: 0; z-index: 200;
     background: rgba(5, 5, 10, 0.88);
@@ -804,7 +792,6 @@
     animation: blink 1.5s step-end infinite;
   }
 
-  /* TOAST */
   .toast {
     position: fixed;
     bottom: 2rem;
@@ -838,7 +825,6 @@
     box-shadow: 0 0 10px #ff3366, 0 0 20px rgba(255,51,102,0.4);
   }
 
-  /* ===== FAB 悬浮 SYNC 控件 ===== */
   .fab-sync {
     position: fixed;
     right: 1.5rem;
@@ -897,7 +883,6 @@
     .fab-sync .fab-label { display: none; }
   }
 
-  /* REVEAL */
   .reveal {
     opacity: 0; transform: translateY(20px);
     transition: opacity 400ms ease, transform 400ms ease;
@@ -918,7 +903,6 @@
 
 <div class="scanbar"></div>
 
-<!-- NAV -->
 <nav>
   <div class="container nav-inner">
     <a href="#" class="brand"><span class="blink-dot"></span>PLAYER_MATRIX//</a>
@@ -929,7 +913,6 @@
   </div>
 </nav>
 
-<!-- HERO -->
 <header class="hero">
   <div class="container">
     <div class="hero-grid">
@@ -960,7 +943,6 @@
   </div>
 </header>
 
-<!-- STATS -->
 <section class="stats">
   <div class="container">
     <div class="stats-grid">
@@ -988,7 +970,6 @@
   </div>
 </section>
 
-<!-- PLAYERS -->
 <section class="section" id="players">
   <div class="container">
     <div class="section-head reveal">
@@ -1024,7 +1005,6 @@
   </div>
 </section>
 
-<!-- PLUGINS -->
 <section class="section" id="plugins">
   <div class="container">
     <div class="section-head reveal">
@@ -1052,7 +1032,6 @@
   </div>
 </section>
 
-<!-- FOOTER -->
 <footer>
   <div class="container">
     <div class="footer-grid">
@@ -1082,7 +1061,6 @@
   </div>
 </footer>
 
-<!-- MODAL -->
 <div class="modal-overlay" id="modalOverlay" aria-hidden="true">
   <div class="modal chamfer" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="term-header">
@@ -1094,7 +1072,6 @@
   </div>
 </div>
 
-<!-- FLOATING SYNC BUTTON -->
 <button class="fab-sync" id="refreshBtn2" title="手动同步数据" aria-label="手动同步数据">
   <svg class="fab-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
     <polyline points="23 4 23 10 17 10"/>
@@ -1104,39 +1081,31 @@
   <span class="fab-label">SYNC_NOW</span>
 </button>
 
-<!-- TOAST -->
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
 (function () {
   "use strict";
 
-  /* ============================================================
-     API BASE & SERVER ADDR
-     ============================================================ */
   const SERVER_ADDR = "play.simpfun.cn:21084";
   const BASE = "http://play.simpfun.cn:29024";
   const PLAYERS_URL = BASE + "/open-api/players";
   const PLUGINS_URL = BASE + "/open-api/plugins";
   const playerDetailUrl = (uuid) => BASE + "/open-api/players/" + encodeURIComponent(uuid);
 
-  /* 代理列表：并发竞速，谁先成功用谁。
-     顺序无关紧要，但把延迟低/成功率高的放前面便于日志查看。 */
   const PROXY_LIST = [
-    (url) => url,                                                     // 直连（HTTP 本地测试可用）
-    (url) => "https://corsproxy.io/?" + encodeURIComponent(url),      // 全球边缘节点，延迟低
-    (url) => "https://cors.ciao.su/" + url,                           // Deno Deploy CDN
-    (url) => "https://api.allorigins.win/raw?url=" + encodeURIComponent(url),
-    (url) => "https://thingproxy.freeboard.io/fetch/" + url,
+    (url) => url,
     (url) => "https://seep.eu.org/" + url,
-    (url) => "https://cors.eu.org/" + url,
+    (url) => "https://corsproxy.io/?url=" + encodeURIComponent(url),
+    (url) => "https://proxy.killcors.com?url=" + url,
+    (url) => "https://proxy.cors.dev/raw?url=" + encodeURIComponent(url),
+    (url) => "https://api.codetabs.com/v1/proxy?quest=" + url,
+    (url) => "https://api.allorigins.win/raw?url=" + encodeURIComponent(url),
+    (url) => "https://cors.x2u.in/" + url,
   ];
   const REFRESH_MS = 30000;
   const FETCH_TIMEOUT_MS = 8000;
 
-  /* ============================================================
-     AVATAR PROVIDERS
-     ============================================================ */
   const AVATAR_PROVIDER_LABEL = {
     "minotar":  "MINOTAR",
     "mineatar": "MINEATAR",
@@ -1167,9 +1136,6 @@
     }
   }
 
-  /* ============================================================
-     LABELS
-     ============================================================ */
   const GAMEMODE_LABEL = {
     survival: "生存",
     creative: "创造",
@@ -1177,9 +1143,6 @@
     spectator: "旁观"
   };
 
-  /* ============================================================
-     STATE
-     ============================================================ */
   const state = {
     players: [],
     plugins: [],
@@ -1195,9 +1158,6 @@
     pluginsNext: 0
   };
 
-  /* ============================================================
-     CARD CACHES (增量渲染)
-     ============================================================ */
   const playerCardCache = new Map();
   const pluginCardCache = new Map();
 
@@ -1222,9 +1182,6 @@
     return p.fileName || p.name || JSON.stringify(p);
   }
 
-  /* ============================================================
-     UTILS
-     ============================================================ */
   const $ = (id) => document.getElementById(id);
 
   function escapeHtml(s) {
@@ -1270,12 +1227,10 @@
     }
   }
 
-  /* 并发竞速：同时请求所有代理，谁先成功用谁 */
   async function fetchJson(url) {
     const isHttpsPage = location.protocol === "https:";
     const targets = PROXY_LIST
       .filter((proxyFn, index) => {
-        // HTTPS 页面请求 HTTP 接口会被浏览器直接拦截，跳过直连
         if (index === 0 && isHttpsPage && /^http:/i.test(url)) return false;
         return true;
       })
@@ -1293,7 +1248,6 @@
         })
         .catch((err) => {
           console.warn("[API_FAIL]", proxyUrl.slice(0, 80) + (proxyUrl.length > 80 ? "…" : ""), err && err.message);
-          // 必须 throw 让 Promise.any 判定为 rejected
           throw err;
         })
     );
@@ -1308,9 +1262,6 @@
     }
   }
 
-  /* ============================================================
-     TOAST
-     ============================================================ */
   const toastEl = $("toast");
   let toastTimer = null;
 
@@ -1323,9 +1274,6 @@
     toastTimer = setTimeout(() => { toastEl.classList.remove("show"); }, 1600);
   }
 
-  /* ============================================================
-     CLIPBOARD
-     ============================================================ */
   async function copyText(text) {
     try {
       if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -1367,9 +1315,6 @@
     });
   }
 
-  /* ============================================================
-     DOM REFS
-     ============================================================ */
   const grid = $("grid");
   const statusEl = $("status");
   const pluginGrid = $("pluginGrid");
@@ -1387,9 +1332,6 @@
 
   bindCopy($("heroAddr"));
 
-  /* ============================================================
-     STATUS HELPERS
-     ============================================================ */
   function setStatus(el, type, msg) {
     if (!type) { el.className = "status"; el.textContent = ""; return; }
     el.className = "status show " + type;
@@ -1407,9 +1349,6 @@
     setText(hudNext, String(secs).padStart(2, "0") + "s");
   }
 
-  /* ============================================================
-     PLAYERS — 加载
-     ============================================================ */
   async function loadPlayers(silent) {
     if (state.playersLoading) return;
     state.playersLoading = true;
@@ -1493,7 +1432,6 @@
     const inner = document.createElement("div");
     inner.className = "pc-inner";
 
-    /* Avatar */
     const avatar = document.createElement("div");
     avatar.className = "pc-avatar";
     const url = getAvatarUrl(p.uuid, p.name, 64);
@@ -1520,7 +1458,6 @@
     dot.className = "dot";
     avatar.appendChild(dot);
 
-    /* Info */
     const info = document.createElement("div");
     info.className = "pc-info";
     const name = document.createElement("div");
@@ -1552,7 +1489,6 @@
     info.append(name, tags);
     inner.append(avatar, info);
 
-    /* Ping */
     if (p.isOnline) {
       const ping = document.createElement("div");
       if (typeof p.ping === "number") {
@@ -1580,9 +1516,6 @@
     return card;
   }
 
-  /* ============================================================
-     PLAYERS — 增量渲染
-     ============================================================ */
   function renderPlayers(force) {
     renderStats();
     const list = visiblePlayers();
@@ -1666,9 +1599,6 @@
     state.gamemode = sel.value;
   }
 
-  /* ============================================================
-     PLAYER DETAIL MODAL
-     ============================================================ */
   let lastFocused = null;
 
   async function openPlayerDetail(p) {
@@ -1681,16 +1611,14 @@
     modalBody.innerHTML =
       '<div class="modal-loading">&gt; GET /open-api/players/' + escapeHtml(p.uuid) + ' …<span class="cursor"></span></div>';
 
-    // 同时静默刷新完整玩家列表（不阻塞详情请求）
     loadPlayers(true);
 
     let detail = null;
     try {
       const data = await fetchJson(playerDetailUrl(p.uuid));
       if (data && typeof data === "object" && data.uuid) detail = data;
-    } catch (e) { /* fallback to latest list data */ }
+    } catch (e) { }
 
-    // 优先使用列表中最新的玩家数据作为兜底
     const latest = state.players.find((x) => x.uuid === p.uuid) || p;
     const merged = detail ? Object.assign({}, latest, detail) : latest;
     renderPlayerDetail(merged);
@@ -1750,9 +1678,6 @@
     if (lastFocused && typeof lastFocused.focus === "function") lastFocused.focus();
   }
 
-  /* ============================================================
-     PLUGINS — 加载
-     ============================================================ */
   async function loadPlugins(silent) {
     if (state.pluginsLoading) return;
     state.pluginsLoading = true;
@@ -1918,9 +1843,6 @@
     return '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>';
   }
 
-  /* ============================================================
-     PLUGINS — 增量渲染
-     ============================================================ */
   function renderPlugins(force) {
     const total = state.plugins.length;
     const enabled = state.plugins.filter((p) => p.enabled).length;
@@ -1986,9 +1908,6 @@
     });
   }
 
-  /* ============================================================
-     LOAD ALL
-     ============================================================ */
   function loadAll(silent) {
     loadPlayers(silent);
     loadPlugins(silent);
@@ -1998,9 +1917,6 @@
     }
   }
 
-  /* ============================================================
-     EVENTS
-     ============================================================ */
   $("search").addEventListener("input", (e) => {
     state.search = e.target.value.trim().toLowerCase();
     renderPlayers();
@@ -2059,9 +1975,6 @@
     }
   });
 
-  /* ============================================================
-     TIMERS — 自动刷新使用静默模式
-     ============================================================ */
   setInterval(() => {
     updateTimeLabel();
     if (!state.playersLoading && state.playersNext && Date.now() >= state.playersNext) {
@@ -2072,9 +1985,6 @@
     }
   }, 1000);
 
-  /* ============================================================
-     REVEAL
-     ============================================================ */
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
       if (entry.isIntersecting) {
@@ -2088,9 +1998,6 @@
     observer.observe(el);
   });
 
-  /* ============================================================
-     HUD VISIBILITY
-     ============================================================ */
   function checkHud() {
     const hud = document.querySelector('[data-show="lg"]');
     if (!hud) return;
@@ -2099,9 +2006,6 @@
   checkHud();
   window.addEventListener("resize", checkHud);
 
-  /* ============================================================
-     BOOT
-     ============================================================ */
   state.playersNext = Date.now();
   state.pluginsNext = Date.now();
   loadAll(false);
