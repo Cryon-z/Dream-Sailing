@@ -1119,7 +1119,17 @@
   const PLAYERS_URL = BASE + "/open-api/players";
   const PLUGINS_URL = BASE + "/open-api/plugins";
   const playerDetailUrl = (uuid) => BASE + "/open-api/players/" + encodeURIComponent(uuid);
-  const PROXY = (url) => "https://api.allorigins.win/raw?url=" + encodeURIComponent(url);
+
+  /* 代理兜底列表：按顺序尝试，直连失败后依次走各代理 */
+  const PROXY_LIST = [
+    (url) => url,                                                     // 直连（HTTP 本地测试可用）
+    (url) => "https://api.allorigins.win/raw?url=" + encodeURIComponent(url),
+    (url) => "https://cors.ciao.su/" + url,
+    (url) => "https://thingproxy.freeboard.io/fetch/" + url,
+    (url) => "https://corsproxy.io/?" + encodeURIComponent(url),
+    (url) => "https://seep.eu.org/" + url,
+    (url) => "https://cors.eu.org/" + url,
+  ];
   const REFRESH_MS = 30000;
 
   /* ============================================================
@@ -1246,18 +1256,39 @@
     return BASE + "/" + icon;
   }
 
+  async function fetchWithTimeout(u, ms) {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), ms);
+    try {
+      const res = await fetch(u, { cache: "no-store", signal: ctrl.signal });
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      return await res.json();
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
   async function fetchJson(url) {
+    const isHttpsPage = location.protocol === "https:";
+    const targets = [];
+    for (let i = 0; i < PROXY_LIST.length; i++) {
+      // HTTPS 页面请求 HTTP 接口会被浏览器直接拦截，跳过直连，省一次无效等待
+      if (i === 0 && isHttpsPage && /^http:/i.test(url)) continue;
+      targets.push(PROXY_LIST[i](url));
+    }
+
     let lastErr = null;
-    for (const u of [url, PROXY(url)]) {
+    for (const u of targets) {
       try {
-        const res = await fetch(u, { cache: "no-store" });
-        if (!res.ok) throw new Error("HTTP " + res.status);
-        return await res.json();
+        const data = await fetchWithTimeout(u, 8000);
+        console.info("[API_OK]", u.slice(0, 80) + (u.length > 80 ? "…" : ""));
+        return data;
       } catch (e) {
+        console.warn("[API_FAIL]", u.slice(0, 80) + (u.length > 80 ? "…" : ""), e && e.message);
         lastErr = e;
       }
     }
-    throw lastErr || new Error("未知错误");
+    throw lastErr || new Error("所有代理均不可用");
   }
 
   /* ============================================================
@@ -1380,7 +1411,7 @@
       if (!silent || state.players.length === 0) {
         setStatus(statusEl, "error",
           "数据流中断：" + (err && err.message ? err.message : err) +
-          " — 可能原因：① 接口未开启 CORS；② HTTPS 页面请求 HTTP 接口被拦截；③ 服务端暂不可达。");
+          " — 可能原因：① 接口未开启 CORS；② HTTPS 页面请求 HTTP 接口被拦截；③ 服务端暂不可达；④ 所有代理均不可用。");
       }
     } finally {
       state.playersLoading = false;
@@ -1725,7 +1756,7 @@
       if (!silent || state.plugins.length === 0) {
         setStatus(pluginStatus, "error",
           "插件清单中断：" + (err && err.message ? err.message : err) +
-          " — 检查接口可达性或 CORS 配置。");
+          " — 检查接口可达性、CORS 配置或代理可用性。");
       }
     } finally {
       state.pluginsLoading = false;
