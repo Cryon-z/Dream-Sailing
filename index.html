@@ -1120,17 +1120,19 @@
   const PLUGINS_URL = BASE + "/open-api/plugins";
   const playerDetailUrl = (uuid) => BASE + "/open-api/players/" + encodeURIComponent(uuid);
 
-  /* 代理兜底列表：按顺序尝试，直连失败后依次走各代理 */
+  /* 代理列表：并发竞速，谁先成功用谁。
+     顺序无关紧要，但把延迟低/成功率高的放前面便于日志查看。 */
   const PROXY_LIST = [
     (url) => url,                                                     // 直连（HTTP 本地测试可用）
+    (url) => "https://corsproxy.io/?" + encodeURIComponent(url),      // 全球边缘节点，延迟低
+    (url) => "https://cors.ciao.su/" + url,                           // Deno Deploy CDN
     (url) => "https://api.allorigins.win/raw?url=" + encodeURIComponent(url),
-    (url) => "https://cors.ciao.su/" + url,
     (url) => "https://thingproxy.freeboard.io/fetch/" + url,
-    (url) => "https://corsproxy.io/?" + encodeURIComponent(url),
     (url) => "https://seep.eu.org/" + url,
     (url) => "https://cors.eu.org/" + url,
   ];
   const REFRESH_MS = 30000;
+  const FETCH_TIMEOUT_MS = 8000;
 
   /* ============================================================
      AVATAR PROVIDERS
@@ -1268,27 +1270,42 @@
     }
   }
 
+  /* 并发竞速：同时请求所有代理，谁先成功用谁 */
   async function fetchJson(url) {
     const isHttpsPage = location.protocol === "https:";
-    const targets = [];
-    for (let i = 0; i < PROXY_LIST.length; i++) {
-      // HTTPS 页面请求 HTTP 接口会被浏览器直接拦截，跳过直连，省一次无效等待
-      if (i === 0 && isHttpsPage && /^http:/i.test(url)) continue;
-      targets.push(PROXY_LIST[i](url));
+    const targets = PROXY_LIST
+      .filter((proxyFn, index) => {
+        // HTTPS 页面请求 HTTP 接口会被浏览器直接拦截，跳过直连
+        if (index === 0 && isHttpsPage && /^http:/i.test(url)) return false;
+        return true;
+      })
+      .map((proxyFn) => proxyFn(url));
+
+    if (targets.length === 0) {
+      throw new Error("没有可用的请求通道");
     }
 
-    let lastErr = null;
-    for (const u of targets) {
-      try {
-        const data = await fetchWithTimeout(u, 8000);
-        console.info("[API_OK]", u.slice(0, 80) + (u.length > 80 ? "…" : ""));
-        return data;
-      } catch (e) {
-        console.warn("[API_FAIL]", u.slice(0, 80) + (u.length > 80 ? "…" : ""), e && e.message);
-        lastErr = e;
+    const requests = targets.map((proxyUrl) =>
+      fetchWithTimeout(proxyUrl, FETCH_TIMEOUT_MS)
+        .then((data) => {
+          console.info("[API_OK]", proxyUrl.slice(0, 80) + (proxyUrl.length > 80 ? "…" : ""));
+          return data;
+        })
+        .catch((err) => {
+          console.warn("[API_FAIL]", proxyUrl.slice(0, 80) + (proxyUrl.length > 80 ? "…" : ""), err && err.message);
+          // 必须 throw 让 Promise.any 判定为 rejected
+          throw err;
+        })
+    );
+
+    try {
+      return await Promise.any(requests);
+    } catch (err) {
+      if (typeof AggregateError !== "undefined" && err instanceof AggregateError) {
+        throw new Error("所有 " + err.errors.length + " 个代理通道均失败");
       }
+      throw err;
     }
-    throw lastErr || new Error("所有代理均不可用");
   }
 
   /* ============================================================
