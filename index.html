@@ -1543,7 +1543,7 @@
     return card;
   }
 
-  function applyFlip(el, firstRect, cleanupKey) {
+  function applyFlip(el, firstRect) {
     if (el._flipCleanup) {
       el._flipCleanup();
     }
@@ -1719,6 +1719,7 @@
     const uuid = d.uuid || "";
     const gm = d.gamemode || "unknown";
     const ping = typeof d.ping === "number" ? d.ping : null;
+    const banReason = d.banReason || "";
 
     const pingCls = ping == null ? "" : (ping < 60 ? "on" : ping < 150 ? "" : "ban");
     const avatarUrl = getAvatarUrl(uuid, name, 128);
@@ -1744,6 +1745,7 @@
         '<div class="detail-row"><span class="k">BANNED</span><span class="v ' + (banned ? "ban" : "") + '">' + (banned ? "YES" : "NO") + '</span></div>' +
         '<div class="detail-row"><span class="k">GAMEMODE</span><span class="v">' + escapeHtml(gm) + ' / ' + escapeHtml(GAMEMODE_LABEL[gm] || "?") + '</span></div>' +
         (ping !== null ? '<div class="detail-row"><span class="k">PING</span><span class="v ' + pingCls + '">' + ping + ' ms</span></div>' : '') +
+        (banReason ? '<div class="detail-row"><span class="k">BAN_REASON</span><span class="v ban">' + escapeHtml(banReason) + '</span></div>' : '') +
       '</div>' +
       '<div class="detail-foot"><span class="dot"></span>TRANSMISSION COMPLETE</div>';
 
